@@ -17,22 +17,38 @@ export const Auth = ({type}: {type: "signup" | "signin"}) => {
         const confirmPassword = confirmPasswordRef.current?.value;
 
         if(type === 'signup') {
-            await axios.post(`${BackendURL}/api/v1/signup`, {
-                username: username,
-                password: password,
-                confirmPassword: confirmPassword
-            })
-            navigate('/signin');
+            try {
+                const response = await axios.post(`${BackendURL}/api/v1/signup`, {
+                    username: username,
+                    password: password,
+                    confirmPassword: confirmPassword
+                })
+                console.log(response);
+                alert(response.data.msg);
+                navigate('/signin');
+            } catch(error) {
+                if(axios.isAxiosError(error)) {
+                    if(error.response) alert(error.response.data.msg);
+                }
+            }
         } else if(type === 'signin') {
-            const response = await axios.post(`${BackendURL}/api/v1/signin`, {
-                username: username,
-                password: password,
-            })
-            const jwt = response.data.token;
-            localStorage.setItem("token", jwt);
-            navigate('/dashboard');
+            try {
+                const response = await axios.post(`${BackendURL}/api/v1/signin`, {
+                    username: username,
+                    password: password,
+                })
+                console.log(response);
+                const jwt = response.data.token;
+                localStorage.setItem("token", jwt);
+                alert(response.data.msg);
+                navigate('/dashboard');
+            } catch(error) {
+                if(axios.isAxiosError(error)) {
+                    if(error.response) alert(error.response.data.msg);
+                }
+            }
         }
-        alert(type === 'signup' ? "You have SIGNED UP" : "You have SIGNED IN");
+        // alert(type === 'signup' ? "You have SIGNED UP" : "You have SIGNED IN");
     }
 
     return (
@@ -43,6 +59,8 @@ export const Auth = ({type}: {type: "signup" | "signin"}) => {
                 <Input ref={passwordRef}  type="password" name="Password:" placeholder="Enter Password..."/>
                 {type === 'signup' ? <Input ref={confirmPasswordRef}  type="password" name="Confirm Password:" placeholder="Confirm Password..."/> : null}
                 <div className="flex justify-center p-4"><Button loading={false} variant="primary" text={`${type === 'signup' ? "Signup" : "Signin"}`} size="md" onClick={auth} fullWidth={true}/></div>
+                {type === 'signup' ? <div className="justify-self-center">Already have an account? <a href="/signin" className="text-purple-600">Signin</a></div> : <div className="justify-self-center">Don't have an account? <a href="/signup" className="text-purple-600">Signup</a></div>}
+
             </div>
         </div>
     )

@@ -4,12 +4,14 @@ import { Button } from "./Button"
 import { Input } from "./Input"
 import { BackendURL } from "../../config";
 import axios from "axios";
+import { useContent } from "../../hooks/useContent";
 
 export const CreateContentModal = ({open, onClose} : {open: boolean, onClose: () => void}) => {
     const typeRef = useRef<HTMLInputElement>(null);
     const titleRef = useRef<HTMLInputElement>(null);
     const linkRef = useRef<HTMLInputElement>(null);
     const contentRef = useRef<HTMLInputElement>(null);
+    const {refresh} = useContent();
 
     async function sendData() {
         const type = typeRef.current?.value;
@@ -28,6 +30,7 @@ export const CreateContentModal = ({open, onClose} : {open: boolean, onClose: ()
             }
         })
         alert(response.data.msg);
+        refresh();
         onClose();
     }
 

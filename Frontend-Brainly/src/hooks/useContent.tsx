@@ -2,11 +2,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { BackendURL } from "../config";
 
-export const useContent = () => {
+export const useContent = (link?: string) => {
     const [contents, setContents] = useState([]);
 
-    function refresh() {
-        axios.get(`${BackendURL}/api/v1/content`, {
+    async function refresh() {
+        await axios.get(`${link}`, {
             headers: {
                 token: localStorage.getItem('token')
             }

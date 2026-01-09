@@ -33,7 +33,7 @@ export const userSignUp = async (req: any, res: any) => {
                 username: username,
                 password: hashedPassword
             })
-            res.status(200).json("User created successfully");
+            res.status(200).json({msg: "User created successfully"});
 
         } catch(err) {
             res.status(403).json({msg: "User already exists", error: err});
@@ -103,14 +103,20 @@ export const getContent = async (req: any, res: any) => {
 }
 
 export const deleteContent = async (req: any, res: any) => {
-    const contentId = req.params.id;
+    try {
+        const contentId = req.params.contentId;
 
-    await ContentModel.deleteOne({
-        contentId : contentId,
-        userId: req.id
-    })
+        await ContentModel.deleteOne({
+            _id : contentId,
+            userId: req.id
+        })
 
-    res.json({msg: "Deleted"});
+        res.json({msg: "Deleted"});
+    } catch(e) {
+        res.status(411).json({
+            msg: "Incorrect content Id"
+        })
+    }
 }
 
 export const createLink = async (req: any, res: any) => {
@@ -119,6 +125,10 @@ export const createLink = async (req: any, res: any) => {
 
     try {
         if(share) {
+            await LinkModel.deleteOne({
+                userId: userId
+            })
+            
             const token = jwt.sign(userId, jwt_secret);
             //const hash = await bcrypt.hash(token, 5);
 
@@ -127,7 +137,7 @@ export const createLink = async (req: any, res: any) => {
                 userId: userId,
             })
 
-            res.json({msg: "Link Created", link: `http://localhost:3000/api/v1/brain/${token}`})
+            res.json({msg: "Link Created", hash: token})
         } else {
             await LinkModel.deleteOne({
                 userId: userId
@@ -143,13 +153,11 @@ export const createLink = async (req: any, res: any) => {
 
 export const shareLink = async (req: any, res: any) => {
     const token = req.params.shareLink;
-
     //const hash = await bcrypt.hash(token, 5);
 
     const link = await LinkModel.findOne({
         hash: token
     })
-    //console.log(hash);
 
     try {
         if(link) {

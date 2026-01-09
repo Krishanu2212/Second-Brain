@@ -5,17 +5,21 @@ import { XIcon } from "../../icons/XIcon";
 import { AudioIcon } from "../../icons/AudioIcon";
 import { ImageIcon } from "../../icons/ImageIcon";
 import type React from "react";
-import type { ReactElement, ReactNode } from "react";
+import type { Dispatch, ReactElement, ReactNode, SetStateAction } from "react";
 import { ShareIcon } from "../../icons/ShareIcon";
 import { Deleteicon } from "../../icons/DeleteIcon";
 
 interface CardProps {
+    userType: "sharedUser" | "owner",
+    _id: number,
     type: 'X' | "Youtube" | "Text" | "Audio" | "Image" | "Video" | "Article",
     title: string,
     link?: string,
     content: any,
     tags: string[],
-    date: string
+    date: string,
+    openDeleteModal?: () => void,
+    setDeleteContentId?: Dispatch<SetStateAction<number>>
 }
 
 const iconType: Record<string, ReactElement> = {
@@ -38,6 +42,16 @@ const LinkType = (props: LinkProps) => {
 }
 
 export const Card = (props: CardProps) => {
+    function funcSet() {
+        if(props.setDeleteContentId) props.setDeleteContentId(props._id);
+        console.log("set");
+    }
+
+    function deleteFunc() {
+        if(props.openDeleteModal) props.openDeleteModal();
+        funcSet();
+    }
+
     return (
         <div className="rounded-xl bg-white border-1 border-gray-300 min-h-72 max-w-72 p-4 my-4">
             <div className="flex justify-between">
@@ -45,10 +59,10 @@ export const Card = (props: CardProps) => {
                     <div className="text-gray-600">{iconType[props.type]}</div>
                     <div className="font-medium text-xl">{props.title}</div>
                 </div>
-                <div className="flex gap-4 items-center text-slate-500">
-                    <div className="cursor-pointer"><ShareIcon size="md"/></div>
-                    <div className="cursor-pointer"><Deleteicon size="md"/></div>
-                </div>
+                {props.userType === 'owner' && <div className="flex gap-4 items-center text-slate-500">
+                    <div><button className="cursor-pointer"><ShareIcon size="md"/></button></div>
+                    <div><button className="cursor-pointer" onClick={deleteFunc}><Deleteicon size="md"/></button></div>
+                </div>}
             </div>
             <div className="py-4 font-normal text-2xl">
                 <div className="text-wrap break-words py-2">{props.content}</div>
